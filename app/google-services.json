@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "969898299479",
+    "project_id": "groupchat-a0327",
+    "storage_bucket": "groupchat-a0327.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969898299479:android:5d794dfd20ea3cc90a5312",
+        "android_client_info": {
+          "package_name": "com.naulian.groupchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "969898299479-1dac5b77gvt8d0voc3gcio2emvat5vfn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCH_1FtWm3PF7kUC-vmLHjyeawDilov7Dc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "969898299479-1dac5b77gvt8d0voc3gcio2emvat5vfn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
