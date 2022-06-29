@@ -14,10 +14,14 @@ import com.naulian.groupchat.databinding.FragmentFirstBinding
 
 class FirstFragment : Fragment(R.layout.fragment_first) {
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val viewBinding = FragmentFirstBinding.bind(view)
+
+        if(Firebase.auth.currentUser != null){
+            findNavController().navigate(R.id.action_firstFragment_to_mainFragment)
+        }
+
 
         val email = viewBinding.editTextEmail
         val password = viewBinding.editTextPassword
@@ -41,6 +45,7 @@ class FirstFragment : Fragment(R.layout.fragment_first) {
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
                         Toast.makeText(requireContext(), "successful", Toast.LENGTH_SHORT).show()
+                        findNavController().navigate(R.id.action_firstFragment_to_mainFragment)
                     } else {
                         println(it.exception?.message)
                         Toast.makeText(requireContext(), "failed", Toast.LENGTH_SHORT).show()
