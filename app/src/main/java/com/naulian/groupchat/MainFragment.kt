@@ -24,6 +24,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                     R.id.action_logout -> {
                         Firebase.auth.signOut()
                         Toast.makeText(requireContext(), "sign out", Toast.LENGTH_SHORT).show()
+                        findNavController().navigate(R.id.action_mainFragment_to_firstFragment)
                         true
                     }
                     else -> false
