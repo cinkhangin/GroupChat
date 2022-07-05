@@ -29,5 +29,13 @@
             app:destination="@id/firstFragment"
             app:popUpTo="@id/mainFragment"
             app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_mainFragment_to_usersFragment"
+            app:destination="@id/usersFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/usersFragment"
+        android:name="com.naulian.groupchat.UsersFragment"
+        android:label="fragment_users"
+        tools:layout="@layout/fragment_users" />
 </navigation>

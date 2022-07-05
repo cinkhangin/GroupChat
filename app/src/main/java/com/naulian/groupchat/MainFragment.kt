@@ -34,8 +34,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             var counter = 0
             btnMain.apply {
                 setOnClickListener {
-                   changeData(counter.toString())
-                    counter++
+                   findNavController().navigate(R.id.action_mainFragment_to_usersFragment)
                 }
 
                text = "text"
