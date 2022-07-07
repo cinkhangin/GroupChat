@@ -23,21 +23,27 @@ class UsersFragment : Fragment(R.layout.fragment_users) {
 
         val userAdapter = UserAdapter()
 
-        val userArrayList = arrayListOf<User>()
+        val userListMap = hashMapOf<String , User>()
 
         val userListener = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                snapshot.getValue<UserMap>()?.let {
+                snapshot.getValue<UserMap>()?.let { userMap ->
                     val id = snapshot.key.toString()
-                    val user = User(name = it.name, userId = id)
-                    userArrayList.add(user)
-                    userAdapter.submitList(userArrayList)
-                    println(userArrayList)
+                    val user = User(name = userMap.name, userId = id)
+                    userListMap[id] = user
+                    val userList = ArrayList(userListMap.values)
+                    userAdapter.submitList(userList)
                 }
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-
+                snapshot.getValue<UserMap>()?.let { userMap ->
+                    val id = snapshot.key.toString()
+                    val user = User(name = userMap.name, userId = id)
+                    userListMap[id] = user
+                    val userList = ArrayList(userListMap.values)
+                    userAdapter.submitList(userList)
+                }
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -56,6 +62,33 @@ class UsersFragment : Fragment(R.layout.fragment_users) {
         Firebase.database
             .getReference("user")
             .addChildEventListener(userListener)
+
+
+        val clickListener = object : ClickListener {
+            override fun onClick(user : User) {
+               viewBinding.apply {
+                   edtUserName.visibility = View.VISIBLE
+                   btnSave.visibility = View.VISIBLE
+
+                   edtUserName.setText(user.name)
+                   btnSave.setOnClickListener {
+                       val newName = edtUserName.text.toString()
+                       Firebase.database
+                           .getReference("user")
+                           .child(user.userId)
+                           .child("name")
+                           .setValue(newName).addOnCompleteListener {
+                               if(it.isSuccessful){
+                                   edtUserName.visibility = View.GONE
+                                   btnSave.visibility = View.GONE
+                               }
+                           }
+                   }
+               }
+            }
+        }
+
+        userAdapter.setOnClickListener(clickListener)
 
 
         viewBinding.apply {
