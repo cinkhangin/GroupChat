@@ -4,9 +4,17 @@
     tools:context="com.naulian.groupchat.MainActivity">
 
     <item
+        android:id="@+id/action_users"
+        android:orderInCategory="99"
+        android:title="Users"
+        android:icon="@drawable/ic_outline_supervisor_account_24"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
         android:title="Logout"
         android:icon="@drawable/ic_baseline_logout_24"
         app:showAsAction="ifRoom" />
+
 </menu>

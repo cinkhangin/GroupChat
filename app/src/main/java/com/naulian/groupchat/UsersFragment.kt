@@ -27,9 +27,9 @@ class UsersFragment : Fragment(R.layout.fragment_users) {
 
         val userListener = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                snapshot.getValue<UserMap>()?.let { userMap ->
+                snapshot.getValue<User>()?.let { user ->
                     val id = snapshot.key.toString()
-                    val user = User(name = userMap.name, userId = id)
+                    user.userId = id
                     userListMap[id] = user
                     val userList = ArrayList(userListMap.values)
                     userAdapter.submitList(userList)
@@ -37,9 +37,9 @@ class UsersFragment : Fragment(R.layout.fragment_users) {
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                snapshot.getValue<UserMap>()?.let { userMap ->
+                snapshot.getValue<User>()?.let { user ->
                     val id = snapshot.key.toString()
-                    val user = User(name = userMap.name, userId = id)
+                    user.userId = id
                     userListMap[id] = user
                     val userList = ArrayList(userListMap.values)
                     userAdapter.submitList(userList)

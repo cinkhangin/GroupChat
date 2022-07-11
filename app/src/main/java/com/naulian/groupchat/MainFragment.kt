@@ -2,21 +2,24 @@ package com.naulian.groupchat
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.naulian.groupchat.databinding.FragmentMainBinding
 
 class MainFragment : Fragment(R.layout.fragment_main) {
+private lateinit var viewBinding: FragmentMainBinding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val viewBinding = FragmentMainBinding.bind(view)
+        viewBinding = FragmentMainBinding.bind(view)
 
         viewBinding.apply {
             topAppBar.setOnMenuItemClickListener {
@@ -27,24 +30,83 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                         findNavController().navigate(R.id.action_mainFragment_to_firstFragment)
                         true
                     }
+                    R.id.action_users ->{
+                        findNavController().navigate(R.id.action_mainFragment_to_usersFragment)
+                        true
+                    }
                     else -> false
                 }
             }
 
-            var counter = 0
-            btnMain.apply {
-                setOnClickListener {
-                   findNavController().navigate(R.id.action_mainFragment_to_usersFragment)
-                }
-
-               text = "text"
+            imgSend.setOnClickListener {
+                sendMessage()
             }
 
         }
+
+        val messageListMap = sortedMapOf<String , Message>()
+
+        val messageListener = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                snapshot.getValue<Message>()?.let { message ->
+                    val id = snapshot.key.toString()
+                    messageListMap[id] = message
+                    val messageList = ArrayList(messageListMap.values)
+
+                    var messageText = ""
+                    messageList.forEach {
+                        messageText+="Sender:${it.name}\n Message: ${it.text}\n"
+                    }
+                    viewBinding.txtMessage.text = messageText
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                snapshot.getValue<Message>()?.let {message ->
+                    val id = snapshot.key.toString()
+                    messageListMap[id] = message
+                    val messageList = ArrayList(messageListMap.values)
+                    var messageText = ""
+                    messageList.forEach {
+                        messageText+="Sender:${it.name}\n Message: ${it.text}\n"
+                    }
+                    viewBinding.txtMessage.text = messageText
+                }
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        }
+
+        Firebase.database.getReference("group_chat")
+            .addChildEventListener(messageListener)
     }
 
-    private fun changeData(data : String){
-        val ref = Firebase.database.getReference("groupChat")
-        ref.setValue(data)
+    private fun sendMessage(){
+        viewBinding.apply {
+            val text = edtMessage.text.toString()
+
+            if(text.isEmpty()){
+                Toast.makeText(requireContext(), "please write something", Toast.LENGTH_SHORT).show()
+                return
+            }
+            edtMessage.text.clear()
+            val message = Message(text = text , name = "john")
+            Firebase.database
+                .getReference("group_chat")
+                .push()
+                .setValue(message)
+
+
+        }
     }
 }
