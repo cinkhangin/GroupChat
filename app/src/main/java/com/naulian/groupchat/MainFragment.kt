@@ -7,10 +7,12 @@ import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
@@ -20,6 +22,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var messageAdapter: MessageAdapter
     private lateinit var viewBinding: FragmentMainBinding
+
+    private var user = User()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -73,11 +77,13 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         }
 
         val messageListMap = sortedMapOf<String, Message>()
+
         val messageListener = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 snapshot.getValue<Message>()?.let { message ->
                     val id = snapshot.key.toString()
                     messageListMap[id] = message
+                    message.messageId = id
                     val messageList = ArrayList(messageListMap.values)
                     messageAdapter.submitList(messageList)
                 }
@@ -87,18 +93,62 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                 snapshot.getValue<Message>()?.let { message ->
                     val id = snapshot.key.toString()
                     messageListMap[id] = message
+                    message.messageId = id
                     val messageList = ArrayList(messageListMap.values)
                     messageAdapter.submitList(messageList)
                 }
             }
 
-            override fun onChildRemoved(snapshot: DataSnapshot) {}
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                snapshot.getValue<Message>()?.let { message ->
+                    val id = snapshot.key.toString()
+                    messageListMap.remove(id)
+                    val messageList = ArrayList(messageListMap.values)
+                    messageAdapter.submitList(messageList)
+                }
+            }
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onCancelled(error: DatabaseError) {}
         }
 
         Firebase.database.getReference("group_chat")
             .addChildEventListener(messageListener)
+
+        val userListener = object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                snapshot.getValue<User>()?.let {
+                    val id = snapshot.key.toString()
+                    it.userId = id
+                    user = it
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        }
+
+
+        val id = Firebase.auth.currentUser?.uid ?: ""
+        Firebase.database.getReference("user")
+            .child(id)
+            .addValueEventListener(userListener)
+
+        val longClickListener = object : LongClickListener{
+            override fun onLongClick(message: Message) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Delete Message")
+                    .setMessage("Are you sure?")
+                    .setPositiveButton("Delete"){ dialog, which ->
+                        Firebase.database.getReference("group_chat")
+                            .child(message.messageId)
+                            .removeValue()
+                    }
+                    .setNegativeButton("Cancel"){a ,b ->}
+                    .show()
+            }
+        }
+
+        messageAdapter.setOnLongClickListener(longClickListener)
+
     }
 
     private fun scrollMessage() {
@@ -116,7 +166,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             }
 
             edtMessage.text.clear()
-            val message = Message(text = text, name = "john")
+            val message = Message(text = text, name = user.name)
             Firebase.database
                 .getReference("group_chat")
                 .push()

@@ -4,6 +4,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -14,10 +15,11 @@ import com.naulian.groupchat.databinding.LayoutMessageBinding
 
 class MessageAdapter : ListAdapter<Message, MessageAdapter.UserViewholder>(MessageDiffUtil()) {
     private var clickListener: ClickListener? = null
+    private var longClickListener: LongClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewholder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val messageBinding = LayoutMessageBinding.inflate(layoutInflater)
+        val messageBinding = LayoutMessageBinding.inflate(layoutInflater, parent , false)
         return UserViewholder(messageBinding)
     }
 
@@ -28,10 +30,13 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.UserViewholder>(Messa
     inner class UserViewholder(val messageBinding: LayoutMessageBinding) :
         RecyclerView.ViewHolder(messageBinding.root) {
 
+        private val context = messageBinding.root.context
         private val id = Firebase.auth.currentUser?.uid ?: ""
-        private val myColor = R.color.myMessageColor
-        private val otherColor = R.color.otherMessageColor
+        private val myColorRes = R.color.myMessageColor
+        private val otherColorRes = R.color.otherMessageColor
 
+        private val myColor = ContextCompat.getColor(context , myColorRes)
+        private val otherColor = ContextCompat.getColor(context , otherColorRes)
 
         fun bind(position: Int) {
             val message: Message = getItem(position)
@@ -40,19 +45,28 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.UserViewholder>(Messa
                 textName.text = message.name
                 textMessage.text = message.text
 
-                card.setCardBackgroundColor(myColor)
-               /* if (message.id == id) {
-
+                if (message.id == id) {
+                    card.setCardBackgroundColor(myColor)
+                    root.gravity = Gravity.END
                 } else {
                     card.setCardBackgroundColor(otherColor)
-                    linearLayout.gravity = Gravity.START
-                }*/
+                    root.gravity = Gravity.START
+                }
+
+                card.setOnLongClickListener {
+                    longClickListener?.onLongClick(message)
+                    true
+                }
             }
         }
     }
 
     fun setOnClickListener(listener: ClickListener) {
         clickListener = listener
+    }
+
+    fun setOnLongClickListener(longClickListener: LongClickListener){
+        this.longClickListener = longClickListener
     }
 
     class MessageDiffUtil : DiffUtil.ItemCallback<Message>() {
