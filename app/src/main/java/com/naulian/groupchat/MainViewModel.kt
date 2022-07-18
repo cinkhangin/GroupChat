@@ -29,6 +29,10 @@ class MainViewModel : ViewModel() {
                 val id = snapshot.key.toString()
                 messageListMap[id] = message
                 message.messageId = id
+                val myId = Firebase.auth.currentUser?.uid ?: ""
+
+                if(message.id != myId) message.seen()
+
                 val messageList = ArrayList(messageListMap.values)
                 messages.value = messageList
             }

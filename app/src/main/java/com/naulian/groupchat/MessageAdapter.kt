@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -39,7 +40,8 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.UserViewholder>(Messa
         private val otherColor = ContextCompat.getColor(context , otherColorRes)
 
         fun bind(position: Int) {
-            val message: Message = getItem(position)
+            //  "98834","jijf","jjif"]
+            val message: Message = getItem(position) //0
 
             messageBinding.apply {
                 textName.text = message.name
@@ -51,6 +53,23 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.UserViewholder>(Messa
                 } else {
                     card.setCardBackgroundColor(otherColor)
                     root.gravity = Gravity.START
+                }
+
+                if(message.seen){
+                    imgSeen.setImageResource(R.drawable.ic_baseline_check_circle_24)
+                }else{
+                    imgSeen.setImageResource(R.drawable.ic_baseline_check_circle_outline_24)
+                }
+
+                if(position > 0){
+                    val preMessage = getItem(position - 1)
+                    textName.isVisible = preMessage.id != message.id
+
+                }
+
+                if(position < itemCount - 1){
+                    val nextMessage = getItem(position+1)
+                    imgSeen.isVisible = nextMessage.id != message.id
                 }
 
                 card.setOnLongClickListener {
