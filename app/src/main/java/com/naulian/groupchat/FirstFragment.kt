@@ -45,11 +45,12 @@ class FirstFragment : Fragment(R.layout.fragment_first) {
                     editTextPassword.setError("empty password")
                     return@setOnClickListener
                 }
-
+                showToast("idasofjefo")
                 signInAccount(emailString, passwordString)
             }
         }
     }
+
 
     private fun createAccount(email: String, pw: String) {
         Firebase.auth.createUserWithEmailAndPassword(email, pw)

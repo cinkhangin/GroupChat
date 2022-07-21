@@ -40,8 +40,7 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.UserViewholder>(Messa
         private val otherColor = ContextCompat.getColor(context , otherColorRes)
 
         fun bind(position: Int) {
-            //  "98834","jijf","jjif"]
-            val message: Message = getItem(position) //0
+            val message: Message = getItem(position)
 
             messageBinding.apply {
                 textName.text = message.name
@@ -71,6 +70,7 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.UserViewholder>(Messa
                     val nextMessage = getItem(position+1)
                     imgSeen.isVisible = nextMessage.id != message.id
                 }
+
 
                 card.setOnLongClickListener {
                     longClickListener?.onLongClick(message)

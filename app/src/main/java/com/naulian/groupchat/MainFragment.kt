@@ -82,11 +82,26 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
         messageAdapter.setOnLongClickListener(longClickListener)
 
-        viewModel.getMessage()
-        viewModel.getUser()
+        viewModel.getMessage(){
+            showToast("something")
+        }
+        viewModel.getUser(){
+            showToast(it.name)
+        }
     }
 
+
     private fun loadUi(){
+
+        val user = User(name = "jijrf").also {
+           it.generateId()
+        }
+
+      /*  val user = User(name = "jijdf").myalso {
+            it.generateId()
+        }*/
+
+
         viewBinding.apply {
             topAppBar.setOnMenuItemClickListener {
                 when (it.itemId) {
@@ -95,6 +110,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                     else -> false
                 }
             }
+
+
 
             imgSend.setOnClickListener {
                 sendMessage()
@@ -142,4 +159,6 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         findNavController().navigate(R.id.action_mainFragment_to_usersFragment)
         return true
     }
+
+
 }

@@ -1,6 +1,6 @@
 package com.naulian.groupchat
 
-import androidx.lifecycle.MutableLiveData
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
@@ -60,28 +60,31 @@ class MainViewModel : ViewModel() {
         override fun onCancelled(error: DatabaseError) {}
     }
 
-    val userListener = object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            snapshot.getValue<User>()?.let {
-                val id = snapshot.key.toString()
-                it.userId = id
-                user.value = it
-            }
-        }
-
-        override fun onCancelled(error: DatabaseError) {}
-    }
-
-
-
-
-    fun getMessage(){
+    fun getMessage(action : () -> Unit){
         Firebase.database.getReference("group_chat")
             .addChildEventListener(messageListener)
+
+        action()
     }
 
-    fun getUser(){
+    fun getUser(action: (user : User) -> Unit){
         val id = Firebase.auth.currentUser?.uid ?: ""
+
+        val userListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                snapshot.getValue<User>()?.let {
+                    val id = snapshot.key.toString()
+                    it.userId = id
+                    user.value = it
+                    action(it)
+
+                    val n = it.name.firstCap()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        }
+
         Firebase.database.getReference("user")
             .child(id)
             .addValueEventListener(userListener)
